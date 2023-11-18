@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class MouseController : MonoBehaviour
+public class MouseController : MonoBehaviour // To attach to cursor
 {
     void LateUpdate(){
         var focusedTileHit = GetFocusedOnTile();
@@ -12,9 +12,9 @@ public class MouseController : MonoBehaviour
             GameObject overlayTile = focusedTileHit.Value.collider.gameObject;
 
             transform.position = overlayTile.transform.position;
-            gameObject.GetComponent<SpriteRenderer>().sortingOrder = overlayTile.GetComponent<SpriteRenderer>().sortingOrder;
+            gameObject.GetComponent<SpriteRenderer>().sortingOrder = overlayTile.GetComponent<SpriteRenderer>().sortingOrder + 1;
 
-            if(Input.GetMouseButtonDown(0)){
+            if(Input.GetMouseButtonDown(0)) {
                 overlayTile.GetComponent<TileSelect>().ShowTile();
             }
         }
