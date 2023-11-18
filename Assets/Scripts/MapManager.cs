@@ -13,7 +13,7 @@ public class MapManager : MonoBehaviour // To attach to map
 
     public Dictionary<Vector2Int, GameObject> map;
 
-    private void Awake(){ // Singleton Logic
+    private void Awake() { // Singleton Logic
         if(_instance != null && _instance != this){
             Destroy(this.gameObject);
         }
@@ -22,7 +22,7 @@ public class MapManager : MonoBehaviour // To attach to map
         }
     }
 
-    void Start(){
+    void Start() {
         var tileMap = gameObject.GetComponentInChildren<Tilemap>();
         map = new Dictionary<Vector2Int, GameObject>();
 

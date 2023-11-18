@@ -5,11 +5,13 @@ using System.Linq;
 
 public class MouseController : MonoBehaviour // To attach to cursor
 {
-    void LateUpdate(){
-        var focusedTileHit = GetFocusedOnTile();
+    void LateUpdate() {
+        RaycastHit2D focusedTileHit = GetFocusedOnTile();
 
-        if(focusedTileHit.HasValue){
-            GameObject overlayTile = focusedTileHit.Value.collider.gameObject;
+        Debug.Log(focusedTileHit);
+
+        if(focusedTileHit){
+            GameObject overlayTile = focusedTileHit.collider.gameObject;
 
             transform.position = overlayTile.transform.position;
             gameObject.GetComponent<SpriteRenderer>().sortingOrder = overlayTile.GetComponent<SpriteRenderer>().sortingOrder + 1;
@@ -20,16 +22,20 @@ public class MouseController : MonoBehaviour // To attach to cursor
         }
     }
 
-    public RaycastHit2D? GetFocusedOnTile(){
+    public RaycastHit2D GetFocusedOnTile() {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2d = new Vector2(mousePos.x, mousePos.y);
+        Vector2 mousePos2d = (Vector2) mousePos;
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2d, Vector2.zero);
+        /*RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2d, Vector2.zero, Mathf.Infinity, LayerMask.GetMask("Map"));
 
         if(hits.Length > 0){
             return hits.OrderByDescending(i => i.collider.transform.position.z).First();
         }
 
         return null;
+        */
+
+        return Physics2D.Raycast(mousePos2d, Vector2.zero, Mathf.Infinity, LayerMask.GetMask("Map"));
     }
 }
+ 

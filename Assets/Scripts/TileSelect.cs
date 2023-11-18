@@ -14,12 +14,12 @@ public class TileSelect : MonoBehaviour //To attach to tile overlay prefab
         }
     }
 
-    public void ShowTile(){
+    public void ShowTile() {
         //showing = true;
 		gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
     }
 
-    public void HideTile(){
+    public void HideTile() {
         //showing = false;
 		gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
     }
