@@ -12,8 +12,10 @@ public class MapManager : MonoBehaviour // To attach to map
     public GameObject overlayTilePrefab;
     public GameObject overlayContainer;
 
-    public Dictionary<Vector2Int, GameObject> coordsToTile;
-    public Dictionary<GameObject, Vector2Int> tileToCoords;
+    public Dictionary<Vector3Int, GameObject> coordsToTile;
+    public Dictionary<GameObject, Vector3Int> tileToCoords;
+    
+    public List<TileData> tileDatas;
 
     private void Awake() { // Singleton Logic
         if(_instance != null && _instance != this){
@@ -22,43 +24,78 @@ public class MapManager : MonoBehaviour // To attach to map
         else{
             _instance = this;
         }
+
+        createOverlayTiles();
+
+        assignTileData();
     }
 
     void Start() {
-        coordsToTile = new Dictionary<Vector2Int, GameObject>();
-        tileToCoords = new Dictionary<GameObject, Vector2Int>();
+
+    }
+
+    void createOverlayTiles()
+    {
+        coordsToTile = new Dictionary<Vector3Int, GameObject>();
+        tileToCoords = new Dictionary<GameObject, Vector3Int>();
 
         Tilemap tileMap = gameObject.GetComponentInChildren<Tilemap>();
 
         BoundsInt bounds = tileMap.cellBounds;
 
-        for(int z = bounds.max.z; z >= bounds.min.z; z--){
-            for(int y = bounds.min.y; y < bounds.max.y; y++){
-                for(int x = bounds.min.x; x < bounds.max.x; x++){
-                    Vector3Int tileLocation = new Vector3Int(x, y, z);
-                    Vector2Int tileKey      = (Vector2Int)tileLocation;
+        for (int z = bounds.max.z; z >= bounds.min.z; z--)
+        {
+            for (int y = bounds.min.y; y < bounds.max.y; y++)
+            {
+                for (int x = bounds.min.x; x < bounds.max.x; x++)
+                {
+                    Vector3Int tileKey = new Vector3Int(x, y, z);
 
-                    if(tileMap.HasTile(tileLocation) && !coordsToTile.ContainsKey(tileKey)){
-                        GameObject overlayTile  = Instantiate(overlayTilePrefab, overlayContainer.transform);
-                        Vector3 cellWorldPos    = tileMap.GetCellCenterWorld(tileLocation);
+                    if (tileMap.HasTile(tileKey) && !coordsToTile.ContainsKey(tileKey))
+                    {
+                        GameObject overlayTile = Instantiate(overlayTilePrefab, overlayContainer.transform);
+                        Vector3 cellWorldPos = tileMap.GetCellCenterWorld(tileKey);
 
                         overlayTile.transform.position = new Vector3(cellWorldPos.x, cellWorldPos.y, cellWorldPos.z);
                         overlayTile.GetComponent<SpriteRenderer>().sortingOrder = tileMap.GetComponent<TilemapRenderer>().sortingOrder;
-                        
-                        // Set canCross modifier / other attribs?
-                        
+
                         coordsToTile.Add(tileKey, overlayTile);
                         tileToCoords.Add(overlayTile, tileKey);
                     }
                 }
             }
         }
+    }
 
-        //Setting player initial pos
-        GameObject player = GameObject.FindWithTag("Player");
-        GameObject playerTile = coordsToTile[player.GetComponent<PlayerController>().startPos];
+    void assignTileData()
+    {
+        Dictionary<TileBase, TileData>  tileToData = new Dictionary<TileBase, TileData>();
 
-        playerTile.GetComponent<TileOverlay>().unit = player;
-        player.transform.position = playerTile.transform.position;
+        foreach(TileData tileData in tileDatas)
+        {
+            foreach(TileBase tileBase in tileData.tiles)
+                tileToData.Add(tileBase, tileData);
+        }
+
+        Tilemap tileMap = gameObject.GetComponentInChildren<Tilemap>();
+
+        foreach(KeyValuePair<Vector3Int, GameObject> entry in coordsToTile)
+        {
+            TileBase tile = tileMap.GetTile(entry.Key);
+
+            entry.Value.GetComponent<TileOverlay>().tileData = Instantiate(tileToData[tile]);
+        }
+    }
+
+    public void showCrossableOverlay()
+    {
+        foreach(GameObject overlayTile in coordsToTile.Values)
+            overlayTile.GetComponent<TileOverlay>().showCrossable();
+    }
+
+    public void hideOverlay()
+    {
+        foreach (GameObject overlayTile in coordsToTile.Values)
+            overlayTile.GetComponent<TileOverlay>().hideTile();
     }
 }

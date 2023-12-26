@@ -46,7 +46,12 @@ public class MouseController : MonoBehaviour // To attach to cursor
 
             //Debug.Log("Hovering over tile " + MapManager.Instance.tileToCoords[overlayTile]);
 
-            currMCS = currMCS.step(overlayTile);
+            MouseControllerState nextMCS = currMCS.step(overlayTile);
+            if(nextMCS != currMCS)
+            {
+                currMCS = nextMCS;
+                currMCS.start();
+            }
         }
         else
         {
@@ -73,39 +78,67 @@ public class MouseController : MonoBehaviour // To attach to cursor
 
 public abstract class MouseControllerState
 {
+    public abstract void start();
+
+    public abstract void end();
+
     public abstract MouseControllerState step(GameObject tile);
 }
 
 public class GeneralMCS : MouseControllerState
 {
+    public override void start()
+    {
+        Debug.Log("General Start");
+    }
+
     public override MouseControllerState step(GameObject tile)
     {
-        Debug.Log("General");
+        //Debug.Log("General");
 
         if (Input.GetMouseButtonDown(0) && tile.GetComponent<TileOverlay>().unit != null) {
             string tag = tile.GetComponent<TileOverlay>().unit.tag;
 
             if (tag == "Player")
             {
+                end();
                 return MouseController.Instance.MCStates["Movement"];
             }
         }
 
         return this;
     }
+
+    public override void end()
+    {
+        Debug.Log("General End");
+    }
 }
 
 public class MovementMCS : MouseControllerState
 {
+    public override void start()
+    {
+        Debug.Log("Movement Start");
+        MapManager.Instance.showCrossableOverlay();
+    }
+
     public override MouseControllerState step(GameObject tile)
     {
-        Debug.Log("Movement");
+        //Debug.Log("Movement");
 
         if(Input.GetMouseButtonDown(1))
         {
+            end();
             return MouseController.Instance.MCStates["General"];
         }
 
         return this;
+    }
+
+    public override void end()
+    {
+        Debug.Log("Movement End");
+        MapManager.Instance.hideOverlay();
     }
 }
