@@ -2,16 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileSelect : MonoBehaviour //To attach to tile overlay prefab
+public class TileOverlay : MonoBehaviour //To attach to tile overlay prefab
 {
-    //bool showing = false;
+    public GameObject unit = null;
 
-    // Update is called once per frame
     void Update()
     {
-        if(/*showing &&*/ Input.GetMouseButtonDown(0)){
-            HideTile();
-        }
+
     }
 
     public void ShowTile() {
