@@ -8,20 +8,26 @@ public class MapManager : MonoBehaviour // To attach to map
 {
     private static MapManager _instance;
     public static MapManager Instance { get { return _instance; } }
-    
-    public GameObject overlayTilePrefab;
-    public GameObject overlayContainer;
 
-    public Dictionary<Vector3Int, GameObject> coordsToTile;
-    public Dictionary<GameObject, Vector3Int> tileToCoords;
-    
-    public List<TileData> tileDatas;
+    [SerializeField]
+    private GameObject overlayContainer;
+
+    [SerializeField]
+    private GameObject overlayTilePrefab;
+
+    [SerializeField]
+    private List<TileData> tileDatas;
+
+    private Dictionary<Vector3Int, GameObject> coordToTile;
+    private Dictionary<GameObject, Vector3Int> tileToCoord;
 
     private void Awake() { // Singleton Logic
-        if(_instance != null && _instance != this){
+        if(_instance != null && _instance != this)
+        {
             Destroy(this.gameObject);
         }
-        else{
+        else
+        {
             _instance = this;
         }
 
@@ -36,8 +42,8 @@ public class MapManager : MonoBehaviour // To attach to map
 
     void createOverlayTiles()
     {
-        coordsToTile = new Dictionary<Vector3Int, GameObject>();
-        tileToCoords = new Dictionary<GameObject, Vector3Int>();
+        coordToTile = new Dictionary<Vector3Int, GameObject>();
+        tileToCoord = new Dictionary<GameObject, Vector3Int>();
 
         Tilemap tileMap = gameObject.GetComponentInChildren<Tilemap>();
 
@@ -51,7 +57,7 @@ public class MapManager : MonoBehaviour // To attach to map
                 {
                     Vector3Int tileKey = new Vector3Int(x, y, z);
 
-                    if (tileMap.HasTile(tileKey) && !coordsToTile.ContainsKey(tileKey))
+                    if (tileMap.HasTile(tileKey) && !coordToTile.ContainsKey(tileKey))
                     {
                         GameObject overlayTile = Instantiate(overlayTilePrefab, overlayContainer.transform);
                         Vector3 cellWorldPos = tileMap.GetCellCenterWorld(tileKey);
@@ -59,8 +65,8 @@ public class MapManager : MonoBehaviour // To attach to map
                         overlayTile.transform.position = new Vector3(cellWorldPos.x, cellWorldPos.y, cellWorldPos.z);
                         overlayTile.GetComponent<SpriteRenderer>().sortingOrder = tileMap.GetComponent<TilemapRenderer>().sortingOrder;
 
-                        coordsToTile.Add(tileKey, overlayTile);
-                        tileToCoords.Add(overlayTile, tileKey);
+                        coordToTile.Add(tileKey, overlayTile);
+                        tileToCoord.Add(overlayTile, tileKey);
                     }
                 }
             }
@@ -79,7 +85,7 @@ public class MapManager : MonoBehaviour // To attach to map
 
         Tilemap tileMap = gameObject.GetComponentInChildren<Tilemap>();
 
-        foreach(KeyValuePair<Vector3Int, GameObject> entry in coordsToTile)
+        foreach(KeyValuePair<Vector3Int, GameObject> entry in coordToTile)
         {
             TileBase tile = tileMap.GetTile(entry.Key);
 
@@ -89,13 +95,30 @@ public class MapManager : MonoBehaviour // To attach to map
 
     public void showCrossableOverlay()
     {
-        foreach(GameObject overlayTile in coordsToTile.Values)
+        foreach(GameObject overlayTile in coordToTile.Values)
             overlayTile.GetComponent<TileOverlay>().showCrossable();
     }
 
     public void hideOverlay()
     {
-        foreach (GameObject overlayTile in coordsToTile.Values)
+        foreach (GameObject overlayTile in coordToTile.Values)
             overlayTile.GetComponent<TileOverlay>().hideTile();
+    }
+
+    public GameObject getTileAtCoord(Vector3Int coord)
+    {
+        return coordToTile[coord];
+    }
+
+    public Vector3Int getCoordAtTile(GameObject tile)
+    {
+        return tileToCoord[tile];
+    }
+
+    public bool isAdjacent(GameObject a, GameObject b)
+    {
+        Vector3Int aPos = tileToCoord[a], bPos = tileToCoord[b];
+
+        return Mathf.Abs(aPos.x - bPos.x) + Mathf.Abs(aPos.y - bPos.y) == 1;
     }
 }

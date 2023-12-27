@@ -9,6 +9,10 @@ public class MouseController : MonoBehaviour // To attach to cursor
     private static MouseController _instance;
     public static MouseController Instance { get { return _instance; } }
 
+    private Dictionary<string, MouseControllerState> MCStates;
+    private MouseControllerState currMCS;
+    public MouseControllerState getState(string name) { return MCStates[name]; }
+
     private void Awake()
     { // Singleton Logic
         if (_instance != null && _instance != this)
@@ -21,9 +25,6 @@ public class MouseController : MonoBehaviour // To attach to cursor
         }
     }
 
-    public Dictionary<string, MouseControllerState> MCStates;
-    private MouseControllerState currMCS;
-
     private void Start()
     {
         MCStates = new Dictionary<string, MouseControllerState>();
@@ -33,10 +34,12 @@ public class MouseController : MonoBehaviour // To attach to cursor
         currMCS = MCStates["General"];
     }
 
-    void LateUpdate() {
+    private void LateUpdate() {
         RaycastHit2D focusedTileHit = GetFocusedOnTile();
 
-        if(focusedTileHit){
+        if(focusedTileHit)
+        {
+            //Move cursor to the right place
             GetComponent<SpriteRenderer>().enabled = true;
 
             GameObject overlayTile = focusedTileHit.collider.gameObject;
@@ -46,6 +49,7 @@ public class MouseController : MonoBehaviour // To attach to cursor
 
             //Debug.Log("Hovering over tile " + MapManager.Instance.tileToCoords[overlayTile]);
 
+            //Handling FSM
             MouseControllerState nextMCS = currMCS.step(overlayTile);
             if(nextMCS != currMCS)
             {
@@ -59,7 +63,7 @@ public class MouseController : MonoBehaviour // To attach to cursor
         }
     }
 
-    public RaycastHit2D GetFocusedOnTile() {
+    private RaycastHit2D GetFocusedOnTile() {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2d = (Vector2) mousePos;
 
@@ -96,13 +100,17 @@ public class GeneralMCS : MouseControllerState
     {
         //Debug.Log("General");
 
-        if (Input.GetMouseButtonDown(0) && tile.GetComponent<TileOverlay>().unit != null) {
+        if (Input.GetMouseButtonDown(0) && tile.GetComponent<TileOverlay>().unit != null) 
+        {
             string tag = tile.GetComponent<TileOverlay>().unit.tag;
 
             if (tag == "Player")
             {
                 end();
-                return MouseController.Instance.MCStates["Movement"];
+
+                ((MovementMCS)MouseController.Instance.getState("Movement")).playerTile = tile;
+
+                return MouseController.Instance.getState("Movement");
             }
         }
 
@@ -117,21 +125,45 @@ public class GeneralMCS : MouseControllerState
 
 public class MovementMCS : MouseControllerState
 {
+    public GameObject playerTile;
+
+    List<GameObject> path = new List<GameObject>();
+
     public override void start()
     {
         Debug.Log("Movement Start");
+
+        path.Add(playerTile);
+        
         MapManager.Instance.showCrossableOverlay();
     }
 
     public override MouseControllerState step(GameObject tile)
     {
-        //Debug.Log("Movement");
-
         if(Input.GetMouseButtonDown(1))
         {
             end();
-            return MouseController.Instance.MCStates["General"];
+
+            return MouseController.Instance.getState("General");
         }
+
+        if (tile == playerTile || tile.GetComponent<TileOverlay>().isCrossable())
+        {
+            if (path.Contains(tile))
+            {
+                while (path.Last() != tile)
+                {
+                    path.Last().GetComponent<TileOverlay>().showCrossable();
+                    path.RemoveAt(path.Count - 1);
+                }
+
+            }
+            else if (MapManager.Instance.isAdjacent(tile, path.Last()))
+            {
+                path.Add(tile);
+                tile.GetComponent<TileOverlay>().showPath();
+            }
+        } 
 
         return this;
     }
@@ -139,6 +171,9 @@ public class MovementMCS : MouseControllerState
     public override void end()
     {
         Debug.Log("Movement End");
+
+        path.Clear();
+
         MapManager.Instance.hideOverlay();
     }
 }
