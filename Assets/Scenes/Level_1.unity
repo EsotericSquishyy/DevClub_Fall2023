@@ -1730,9 +1730,10 @@ GameObject:
   - component: {fileID: 435201491}
   - component: {fileID: 435201490}
   - component: {fileID: 435201489}
+  - component: {fileID: 435201492}
   m_Layer: 0
   m_Name: Slime
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1798,7 +1799,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -414808171, guid: 7165a40550495274fa7afe09c3c0d2b9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1819,12 +1820,26 @@ Transform:
   m_GameObject: {fileID: 435201488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.01, y: 3.85, z: 0}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &435201492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435201488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62fdce866140a9d44b84dfa2939aa6b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: 0, y: 0, z: 0}
+  moveDuration: 0.5
 --- !u!1 &889263977
 GameObject:
   m_ObjectHideFlags: 0
@@ -1904,7 +1919,7 @@ Transform:
   m_GameObject: {fileID: 889263977}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1981,8 +1996,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6810e8caec428f9409a7f2779b4e08a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overlayTilePrefab: {fileID: 5283026760671963566, guid: aea99abbcfd94af489aadb7ce10f689d, type: 3}
   overlayContainer: {fileID: 2033819166}
+  overlayTilePrefab: {fileID: 5283026760671963566, guid: aea99abbcfd94af489aadb7ce10f689d, type: 3}
+  tileDatas:
+  - {fileID: 11400000, guid: 369e944e7434a9e41870c1507bde959f, type: 2}
+  - {fileID: 11400000, guid: 39a59498f0bd0a743b48058545b23b9b, type: 2}
 --- !u!1 &1748139269
 GameObject:
   m_ObjectHideFlags: 0
@@ -2019,7 +2037,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2044,7 +2062,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2069,7 +2087,7 @@ Transform:
   m_GameObject: {fileID: 1748139269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0.25, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
