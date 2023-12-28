@@ -16,3 +16,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7400a30b8eb50fa4baefd4578cfed1fb, type: 2}
   - {fileID: 11400000, guid: 603df4bf1df16d347ac8c12aa23c11a3, type: 2}
   crossable: 0
+  slimed: 0
+  cost: 1

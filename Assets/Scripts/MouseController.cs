@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using Unity.VisualScripting;
+using UnityEngine;
 
 public class MouseController : MonoBehaviour // To attach to cursor
 {
@@ -29,6 +27,7 @@ public class MouseController : MonoBehaviour // To attach to cursor
     {
         MCStates = new Dictionary<string, MouseControllerState>();
         MCStates.Add("General", new GeneralMCS());
+        MCStates.Add("Path Select", new PathSelectMCS());
         MCStates.Add("Movement", new MovementMCS());
 
         currMCS = MCStates["General"];
@@ -37,7 +36,7 @@ public class MouseController : MonoBehaviour // To attach to cursor
     private void LateUpdate() {
         RaycastHit2D focusedTileHit = GetFocusedOnTile();
 
-        if(focusedTileHit)
+        if (focusedTileHit)
         {
             //Move cursor to the right place
             GetComponent<SpriteRenderer>().enabled = true;
@@ -51,8 +50,9 @@ public class MouseController : MonoBehaviour // To attach to cursor
 
             //Handling FSM
             MouseControllerState nextMCS = currMCS.step(overlayTile);
-            if(nextMCS != currMCS)
+            if (nextMCS != currMCS)
             {
+                currMCS.end();
                 currMCS = nextMCS;
                 currMCS.start();
             }
@@ -93,24 +93,22 @@ public class GeneralMCS : MouseControllerState
 {
     public override void start()
     {
-        Debug.Log("General Start");
+        Debug.Log("General START");
     }
 
     public override MouseControllerState step(GameObject tile)
     {
         //Debug.Log("General");
 
-        if (Input.GetMouseButtonDown(0) && tile.GetComponent<TileOverlay>().unit != null) 
+        if (Input.GetMouseButtonDown(0) && tile.GetComponent<TileOverlay>().getUnit() != null) 
         {
-            string tag = tile.GetComponent<TileOverlay>().unit.tag;
+            string tag = tile.GetComponent<TileOverlay>().getUnit().tag;
 
             if (tag == "Player")
             {
-                end();
+                ((PathSelectMCS)MouseController.Instance.getState("Path Select")).playerTile = tile;
 
-                ((MovementMCS)MouseController.Instance.getState("Movement")).playerTile = tile;
-
-                return MouseController.Instance.getState("Movement");
+                return MouseController.Instance.getState("Path Select");
             }
         }
 
@@ -119,11 +117,11 @@ public class GeneralMCS : MouseControllerState
 
     public override void end()
     {
-        Debug.Log("General End");
+        Debug.Log("General END");
     }
 }
 
-public class MovementMCS : MouseControllerState
+public class PathSelectMCS : MouseControllerState
 {
     public GameObject playerTile;
 
@@ -131,8 +129,9 @@ public class MovementMCS : MouseControllerState
 
     public override void start()
     {
-        Debug.Log("Movement Start");
+        Debug.Log("Path Select START");
 
+        path.Clear();
         path.Add(playerTile);
         
         MapManager.Instance.showCrossableOverlay();
@@ -140,11 +139,16 @@ public class MovementMCS : MouseControllerState
 
     public override MouseControllerState step(GameObject tile)
     {
-        if(Input.GetMouseButtonDown(1))
-        {
-            end();
-
+        if (Input.GetMouseButtonDown(1))
             return MouseController.Instance.getState("General");
+        else if (Input.GetMouseButtonDown(0) && path.Count > 1)
+        {
+            ((MovementMCS)MouseController.Instance.getState("Movement")).playerController
+                = playerTile.GetComponent<TileOverlay>().getUnit().GetComponent<PlayerController>();
+
+            ((MovementMCS)MouseController.Instance.getState("Movement")).path = path;
+
+            return MouseController.Instance.getState("Movement");
         }
 
         if (tile == playerTile || tile.GetComponent<TileOverlay>().isCrossable())
@@ -170,10 +174,34 @@ public class MovementMCS : MouseControllerState
 
     public override void end()
     {
-        Debug.Log("Movement End");
-
-        path.Clear();
+        Debug.Log("Path Select END");
 
         MapManager.Instance.hideOverlay();
+    }
+}
+
+public class MovementMCS : MouseControllerState
+{
+    public PlayerController playerController;
+    public List<GameObject> path;
+    
+    public override void start()
+    {
+        Debug.Log("Movement START");
+
+        playerController.moveAlongPath(path);
+    }
+
+    public override MouseControllerState step(GameObject tile)
+    {
+        if (playerController.isMoving())
+            return this;
+        else
+            return MouseController.Instance.getState("General");
+    }
+
+    public override void end()
+    {
+        Debug.Log("Movement END");
     }
 }

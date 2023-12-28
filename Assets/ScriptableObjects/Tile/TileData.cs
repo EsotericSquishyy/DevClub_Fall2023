@@ -8,4 +8,6 @@ public class TileData : ScriptableObject
 {
     public TileBase[] tiles;
     public bool crossable;
+    public bool slimed;
+    public int cost;
 }

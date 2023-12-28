@@ -89,7 +89,7 @@ public class MapManager : MonoBehaviour // To attach to map
         {
             TileBase tile = tileMap.GetTile(entry.Key);
 
-            entry.Value.GetComponent<TileOverlay>().tileData = Instantiate(tileToData[tile]);
+            entry.Value.GetComponent<TileOverlay>().setTileData(Instantiate(tileToData[tile]));
         }
     }
 

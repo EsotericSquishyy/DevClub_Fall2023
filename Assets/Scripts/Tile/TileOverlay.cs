@@ -4,23 +4,20 @@ using UnityEngine;
 
 public class TileOverlay : MonoBehaviour //To attach to tile overlay prefab
 {
-    public GameObject unit = null;
+    private GameObject unit = null;
 
-    public TileData tileData;
-
-    private void Start()
+    private TileData tileData;
+    public void setTileData(TileData tileData)
     {
-
+        this.tileData = tileData;
     }
 
-    void Update()
-    {
-
-    }
+    public GameObject getUnit() { return unit; }
+    public void setUnit(GameObject unit) {  this.unit = unit; }
 
     public bool isCrossable()
     {
-        return tileData.crossable && unit == null;
+        return tileData.crossable;
     }
 
     public void showCrossable()
