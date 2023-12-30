@@ -62,7 +62,8 @@ public class MapManager : MonoBehaviour // To attach to map
                         GameObject overlayTile = Instantiate(overlayTilePrefab, overlayContainer.transform);
                         Vector3 cellWorldPos = tileMap.GetCellCenterWorld(tileKey);
 
-                        overlayTile.transform.position = new Vector3(cellWorldPos.x, cellWorldPos.y, cellWorldPos.z);
+                        // Making sure the overlay sprites WILL render over the corresponding tiles BUT not others
+                        overlayTile.transform.position = new Vector3(cellWorldPos.x, cellWorldPos.y, cellWorldPos.z + 0.1f); 
                         overlayTile.GetComponent<SpriteRenderer>().sortingOrder = tileMap.GetComponent<TilemapRenderer>().sortingOrder;
 
                         coordToTile.Add(tileKey, overlayTile);
